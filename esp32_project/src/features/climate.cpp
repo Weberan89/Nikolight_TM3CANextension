@@ -108,103 +108,19 @@ enAnimation ClimateState::run(enAnimation currentActiveAnimation)
     run_time+=CYCLE_TIME_FEATURE;
 
 #ifdef FEATURE_CLIMATE_TARGET_TEMPERATURE
-    targetTemperatureChange_ms++;
-
-    // If target temperature increase is active 
-    if ( targetTemperatureIncrease_b )
-    {
-        // If animation time is not already at max. animation time and also no higher priority animation of climate is active
-        if ( ( targetTemperatureChange_ms <= C_ANIMATION_TIME_CLIMATE_TARGET_HOT ) 
-          && ( locAnimation < ANIMATION_CLIMATE_TARGET_HOT ) )
-        {
-            locAnimation = ANIMATION_CLIMATE_TARGET_HOT;
-        }
-        else
-        {
-            // reset information about temp. increase
-            targetTemperatureIncrease_b = false;
-
-            // If current animation is target temperature hot, then reset
-            if ( currentActiveAnimation == ANIMATION_CLIMATE_TARGET_HOT )
-            {
-                currentActiveAnimation = enAnimation::ANIMATION_NONE;
-            }
-        }
-    }
-    
-    // If target temperature decrease is active 
-    if ( targetTemperatureDecrease_b )
-    {
-        // If animation time is not already at max. animation time and also no higher priority animation of climate is active
-        if ( ( targetTemperatureChange_ms <= C_ANIMATION_TIME_CLIMATE_TARGET_COLD ) 
-          && ( locAnimation < ANIMATION_CLIMATE_TARGET_COLD ) )
-        {
-            locAnimation = ANIMATION_CLIMATE_TARGET_COLD;
-        }
-        else
-        {
-            // reset information about temp. decrease
-            targetTemperatureDecrease_b = false;
-
-            // If current animation is target temperature cold, then reset
-            if ( currentActiveAnimation == ANIMATION_CLIMATE_TARGET_COLD )
-            {
-                currentActiveAnimation = enAnimation::ANIMATION_NONE;
-            }
-        }
-    }
+    locAnimation = checkStatus(&locAnimation, enAnimation::ANIMATION_CLIMATE_TARGET_HOT, &targetTemperatureIncrease_b, &targetTemperatureChange_ms, C_ANIMATION_TIME_CLIMATE_TARGET_HOT);
+    locAnimation = checkStatus(&locAnimation, enAnimation::ANIMATION_CLIMATE_TARGET_COLD, &targetTemperatureDecrease_b, &targetTemperatureChange_ms, C_ANIMATION_TIME_CLIMATE_TARGET_COLD);
 #endif
 
 #ifdef FEATURE_CLIMATE_CURRENT_TEMPERATURE
-    currentTemperatureChange_ms++;
-
-    // If current temperature increase is active
-    if ( currentTemperatureIncrease_b )
-    {
-        // If animation time is not already at max. animation time and also no higher priority animation of climate is active
-        if ( ( currentTemperatureChange_ms <= C_ANIMATION_TIME_CLIMATE_CURRENT_HOT ) 
-          && ( locAnimation < ANIMATION_CLIMATE_CURRENT_HOT ) )
-        {
-            locAnimation = ANIMATION_CLIMATE_CURRENT_HOT;
-        }
-        else
-        {
-            // reset information about temp. increase
-            currentTemperatureIncrease_b = false;
-
-            // If current animation is current temperature hot, then reset
-            if ( currentActiveAnimation == ANIMATION_CLIMATE_CURRENT_HOT )
-            {
-                currentActiveAnimation = enAnimation::ANIMATION_NONE;
-            }
-        }
-    }
-
-    // If current temperature decrease is active 
-    if ( currentTemperatureDecrease_b )
-    {
-        // If animation time is not already at max. animation time and also no higher priority animation of climate is active
-        if ( ( currentTemperatureChange_ms <= C_ANIMATION_TIME_CLIMATE_CURRENT_COLD ) 
-          && ( locAnimation < ANIMATION_CLIMATE_CURRENT_COLD ) )
-        {
-            locAnimation = ANIMATION_CLIMATE_CURRENT_COLD;
-        }
-        else
-        {
-            // reset information about temp. decrease
-            currentTemperatureDecrease_b = false;
-
-            // If current animation is current temperature cold, then reset
-            if ( currentActiveAnimation == ANIMATION_CLIMATE_CURRENT_COLD )
-            {
-                currentActiveAnimation = enAnimation::ANIMATION_NONE;
-            }
-        }
-    }
+    locAnimation = checkStatus(&locAnimation, enAnimation::ANIMATION_CLIMATE_CURRENT_HOT, &currentTemperatureIncrease_b, &currentTemperatureChange_ms, C_ANIMATION_TIME_CLIMATE_CURRENT_HOT);
+    locAnimation = checkStatus(&locAnimation, enAnimation::ANIMATION_CLIMATE_CURRENT_COLD, &currentTemperatureDecrease_b, &currentTemperatureChange_ms, C_ANIMATION_TIME_CLIMATE_CURRENT_COLD);
 #endif
 
+    // If new animation is of higher priority then current active animation then return new climate animation
     if (locAnimation >= currentActiveAnimation)
         return locAnimation;
 
+    // Otherwise return received animation
     return currentActiveAnimation;
 };
