@@ -11,7 +11,7 @@ class BaseFeature
     protected:
         bool init_state;
         bool feature_active;
-        uint64_t run_time;
+        ui64 run_time;
 
     public:
         BaseFeature() : init_state(false),
@@ -19,7 +19,11 @@ class BaseFeature
 
         bool get_init_state(void) { return init_state; };
 
-        void run(void) { init_state = false; };
+        enAnimation run(void) 
+        { 
+            init_state = false;
+            return enAnimation::ANIMATION_NONE;
+        };
 
         // Getter
         bool getFeatureActiveStatus() { return feature_active; };

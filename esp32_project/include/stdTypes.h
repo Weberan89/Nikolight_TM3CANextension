@@ -7,3 +7,5 @@
 #define si16 int16_t 
 #define ui32 uint32_t 
 #define si32 int32_t 
+#define ui64 uint64_t
+#define si64 int64_t

@@ -8,5 +8,6 @@
 #include "vehicleFeatures.hpp"
 
 void VehicleFeatures::goThrough(void){
-    climate.run();
+    enAnimation animationAfterClimate = climate.run(currentActiveAnimation);
+    enAnimation animationAfterLights = lights.run(currentActiveAnimation);
 };

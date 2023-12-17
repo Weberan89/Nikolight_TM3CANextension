@@ -1,11 +1,14 @@
 /*
-    @file climate.hpp
+    @file climate.cpp
     @author Andreas Weber
     @brief Implementation of climate class
 */
 
 #include "climate.hpp"
 
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  Target temperature
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #ifdef FEATURE_CLIMATE_TARGET_TEMPERATURE
 
 /// @brief This function is used to update the local target temperature in case the CAN message was received
@@ -45,7 +48,9 @@ void ClimateState::updateTargetTemperature( int new_temp )
 
 #endif // FEATURE_CLIMATE_TARGET_TEMPERATURE
             
-
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  Current Temperature
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #ifdef FEATURE_CLIMATE_CURRENT_TEMPERATURE
 
 /// @brief This function is used to update the estimated current temperature in case the CAN message was received
@@ -85,49 +90,121 @@ void ClimateState::updateCurrentTemperature( int new_temp )
 
 #endif // FEATURE_CLIMATE_CURRENT_TEMPERATURE
 
-
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  Climate States - run method
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 /// @brief This function is the run method to calculate the cyclic update of the feature climate
 /// @param void
-void ClimateState::run(void)
+enAnimation ClimateState::run(enAnimation currentActiveAnimation)
 {
-    // If feature is not initialized or inactive do nothing
-    if (!init_state || !feature_active)
-        return;
+    enAnimation locAnimation = enAnimation::ANIMATION_NONE;
 
-    run_time++;
+    // If feature is not initialized or inactive do nothing
+    if ( !init_state ||  !feature_active )
+    {
+        // Climate feature is not active or initialized yet, return current active animation
+        return currentActiveAnimation;
+    }
+    run_time+=CYCLE_TIME_FEATURE;
 
 #ifdef FEATURE_CLIMATE_TARGET_TEMPERATURE
     targetTemperatureChange_ms++;
 
-    // If animation is 
-    if ( (   targetTemperatureIncrease_b
-         && (targetTemperatureChange_ms > C_ANIMATION_TIME_CLIMATE_TARGET_HOT)
-         ) 
-     ||  (   targetTemperatureDecrease_b
-         && (targetTemperatureChange_ms > C_ANIMATION_TIME_CLIMATE_TARGET_COLD)
-         )
-    )
+    // If target temperature increase is active 
+    if ( targetTemperatureIncrease_b )
     {
-        targetTemperatureIncrease_b = false;
-        targetTemperatureDecrease_b = false; 
+        // If animation time is not already at max. animation time and also no higher priority animation of climate is active
+        if ( ( targetTemperatureChange_ms <= C_ANIMATION_TIME_CLIMATE_TARGET_HOT ) 
+          && ( locAnimation < ANIMATION_CLIMATE_TARGET_HOT ) )
+        {
+            locAnimation = ANIMATION_CLIMATE_TARGET_HOT;
+        }
+        else
+        {
+            // reset information about temp. increase
+            targetTemperatureIncrease_b = false;
+
+            // If current animation is target temperature hot, then reset
+            if ( currentActiveAnimation == ANIMATION_CLIMATE_TARGET_HOT )
+            {
+                currentActiveAnimation = enAnimation::ANIMATION_NONE;
+            }
+        }
+    }
+    
+    // If target temperature decrease is active 
+    if ( targetTemperatureDecrease_b )
+    {
+        // If animation time is not already at max. animation time and also no higher priority animation of climate is active
+        if ( ( targetTemperatureChange_ms <= C_ANIMATION_TIME_CLIMATE_TARGET_COLD ) 
+          && ( locAnimation < ANIMATION_CLIMATE_TARGET_COLD ) )
+        {
+            locAnimation = ANIMATION_CLIMATE_TARGET_COLD;
+        }
+        else
+        {
+            // reset information about temp. decrease
+            targetTemperatureDecrease_b = false;
+
+            // If current animation is target temperature cold, then reset
+            if ( currentActiveAnimation == ANIMATION_CLIMATE_TARGET_COLD )
+            {
+                currentActiveAnimation = enAnimation::ANIMATION_NONE;
+            }
+        }
     }
 #endif
 
 #ifdef FEATURE_CLIMATE_CURRENT_TEMPERATURE
     currentTemperatureChange_ms++;
 
-    // If animation is 
-    if ( (   currentTemperatureIncrease_b
-         && (currentTemperatureChange_ms > C_ANIMATION_TIME_CLIMATE_CURRENT_HOT)
-         ) 
-     ||  (   currentTemperatureDecrease_b
-         && (currentTemperatureChange_ms > C_ANIMATION_TIME_CLIMATE_CURRENT_COLD)
-         )
-    )
+    // If current temperature increase is active
+    if ( currentTemperatureIncrease_b )
     {
-        currentTemperatureIncrease_b = false;
-        currentTemperatureDecrease_b = false; 
+        // If animation time is not already at max. animation time and also no higher priority animation of climate is active
+        if ( ( currentTemperatureChange_ms <= C_ANIMATION_TIME_CLIMATE_CURRENT_HOT ) 
+          && ( locAnimation < ANIMATION_CLIMATE_CURRENT_HOT ) )
+        {
+            locAnimation = ANIMATION_CLIMATE_CURRENT_HOT;
+        }
+        else
+        {
+            // reset information about temp. increase
+            currentTemperatureIncrease_b = false;
+
+            // If current animation is current temperature hot, then reset
+            if ( currentActiveAnimation == ANIMATION_CLIMATE_CURRENT_HOT )
+            {
+                currentActiveAnimation = enAnimation::ANIMATION_NONE;
+            }
+        }
+    }
+
+    // If current temperature decrease is active 
+    if ( currentTemperatureDecrease_b )
+    {
+        // If animation time is not already at max. animation time and also no higher priority animation of climate is active
+        if ( ( currentTemperatureChange_ms <= C_ANIMATION_TIME_CLIMATE_CURRENT_COLD ) 
+          && ( locAnimation < ANIMATION_CLIMATE_CURRENT_COLD ) )
+        {
+            locAnimation = ANIMATION_CLIMATE_CURRENT_COLD;
+        }
+        else
+        {
+            // reset information about temp. decrease
+            currentTemperatureDecrease_b = false;
+
+            // If current animation is current temperature cold, then reset
+            if ( currentActiveAnimation == ANIMATION_CLIMATE_CURRENT_COLD )
+            {
+                currentActiveAnimation = enAnimation::ANIMATION_NONE;
+            }
+        }
     }
 #endif
-    return;
+
+    if (locAnimation >= currentActiveAnimation)
+        return locAnimation;
+
+    return currentActiveAnimation;
 };

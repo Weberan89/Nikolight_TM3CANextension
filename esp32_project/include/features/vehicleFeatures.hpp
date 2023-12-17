@@ -5,23 +5,18 @@
 */
 
 #include "climate.hpp"
-
-enum enAnimation
-{
-    ANIMATION_NONE,
-    ANIMATION_CLIMATE,
-
-};
+#include "lights.hpp"
 
 class VehicleFeatures
 {
     
 private:
-    enAnimation activeAnimation;
+    enAnimation currentActiveAnimation;
     ClimateState climate;
+    LightState lights;
 
 public:
     void goThrough();
 
-    VehicleFeatures() : activeAnimation(ANIMATION_NONE){};
+    VehicleFeatures() : currentActiveAnimation(enAnimation::ANIMATION_NONE){};
 };
