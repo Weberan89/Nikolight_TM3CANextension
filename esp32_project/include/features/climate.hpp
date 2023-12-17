@@ -3,9 +3,9 @@
     @author Andreas Weber
     @brief Definition of climate class
 */
-#include "std_types.h"
-#include "extension_configuration.hpp"
-#include "base_feature.hpp"
+#include "stdTypes.h"
+#include "extensionConfiguration.hpp"
+#include "baseFeature.hpp"
 
 #define C_TARGET_TEMP_INITIALIZED    1 << 0
 #define C_CURRENT_TEMP_INITIALIZED   1 << 1
