@@ -6,13 +6,38 @@
 
 #include <CAN.h>
 
+#include "extensionConfiguration.hpp"
 #include "canTransceiver.hpp"
 #include "canDecoder.hpp"
-#include "extensionConfiguration.hpp"
 
 
 // Removed "ESP32SJA1000Class CAN" from ESP32SJA1000.cpp
 // Removed "MCP2515Class CAN" from MCP2515.cpp
+
+#ifdef CAN_VEHICLE_AVAILABLE
+void CanTransceiver::storeVehicleData(CanFrame * IDFrame){
+    saveData(&VehicleCAN, &IDFrame);
+};
+#endif // CAN_VEHICLE_AVAILABLE
+
+#ifdef CAN_CHASSIS_AVAILABLE
+void CanTransceiver::storeChassisData(CanFrame * IDFrame){
+    saveData(&ChassisCAN, &IDFrame);
+};
+#endif // CAN_CHASSIS_AVAILABLE
+
+void CanTransceiver::storeData(MCP2515Class * currentCAN, CanFrame * IDFrame){
+    // Update timestamp
+    &IDFrame.recTimeStamp_last = &IDFrame.recTimeStamp;
+    &IDFrame.recTimeStamp = millis();
+
+    // Get all data and store locally
+    ui8 loc_idx = 0u;
+    while( &currentCAN.available() & loc_idx < 8)
+    {
+        &IDFrame.data[loc_idx] = &currentCAN.read();
+    }
+};
 
 #ifdef CAN_VEHICLE_AVAILABLE
 
@@ -75,19 +100,19 @@ CanTransceiver::vehicleDataReceived(int packetSize)
     switch (VehicleCAN.packetId()) :
     {
         case CAN_VEHICLE_ID_VCFRONT_LIGHT:
-            decodeVcfrontLight();
+            storeVehicleData(&ID3F5VCFRONT_lighting);
             break;
         case CAN_VEHICLE_ID_VCRIGHT_LIGHT:
-            decodeVcrightLight();
+            storeVehicleData(&ID3E3VCRIGHT_lightStatus);
             break;
         case CAN_VEHICLE_ID_VCRIGHT_HVAC:
-            decodeHvacRight();
+            storeVehicleData(&ID243VCRIGHT_hvacStatus);
             break;
         case CAN_VEHICLE_ID_DIF_TORQUE:
-            decodeDifTorque();
+            storeVehicleData(&ID186DIF_torque);
             break;
         case CAN_VEHICLE_ID_DRIVE_SYSTEM_STATUS:
-            decodeDriveSystem();
+            storeVehicleData(&ID118DriveSystemStatus);
             break;
         default:
             // message is not relevant
@@ -152,7 +177,7 @@ CanTransceiver::chassisDataReceived(int packetSize)
     switch (ChassisCAN.packetId()) :
     {
         case CAN_CHASSIS_ID_ADAS:
-            decodeDasStatus();
+            storeChassisData(&ID399DAS_status);
             break;
         default:
             // message is not relevant

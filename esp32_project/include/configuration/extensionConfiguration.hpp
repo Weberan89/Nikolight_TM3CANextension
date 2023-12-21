@@ -58,6 +58,7 @@ enum enAnimation
 // ADAS Features
 #ifdef CAN_CHASSIS_AVAILABLE
     // Chassis CAN, ID399, DAS_status
+    #define CAN_CHASSIS_ID_ADAS 0x399
     #define FEATURE_ADAS_BLIND_SPOT_WARNING             // DAS_blindSpotRearLeft, DAS_blindSpotRearRight
     #define FEATURE_ADAS_LANE_DEPARTURE_WARNING         // DAS_laneDepartureWarning (1 = Left low, 3 = Left high, 2 = Right low, 4 = right high)
     #define FEATURE_ADAS_FRONT_COLLISION_WARNING        // DAS_forwardCollisionWarning
@@ -71,6 +72,7 @@ enum enAnimation
 // LIGHT FEATURES
 #ifdef CAN_VEHICLE_AVAILABLE
     // Vehicle CAN, ID3F5, VCFRONT_lighting
+    #define CAN_VEHICLE_ID_VCFRONT_LIGHT 0x3F5
     #define FEATURE_LIGHT_STATUS_TURN_INDICATOR         // VCFRONT_indicatorLeftRequest, VCFRONT_indicatorRightRequest
     #define FEATURE_LIGHT_STATUS_HAZARD                 // VCFRONT_hazardLightRequest
     #define FEATURE_LIGHT_STATUS_LOWBEAM_CHANGE         // VCFRONT_lowBeamLeftStatus, VCFRONT_lowBeamRightStatus
@@ -78,6 +80,7 @@ enum enAnimation
     #define FEATURE_LIGHT_STATUS_FOG_FRONT              // VCFRONT_fogLeftStatus, VCFRONT_fogRightStatus
 
     // Vehicle CAN, ID3E3, VCRIGHT_lightStatus
+    #define CAN_VEHICLE_ID_VCRIGHT_LIGHT 0x3E3
     #define FEATURE_LIGHT_STATUS_FOG_REAR               // VCRIGHT_rearFogLightStatus
     #define FEATURE_LIGHT_STATUS_BRAKING                // VCRIGHT_brakeLightStatus
     #define FEATURE_LIGHT_STATUS_REVERSE                // VCRIGHT_reverseLightStatus
@@ -88,6 +91,7 @@ enum enAnimation
 // Climate Features
 #ifdef CAN_VEHICLE_AVAILABLE
     // Vehicle CAN, ID243, VCRIGHT_hvacStatus
+    #define CAN_VEHICLE_ID_VCRIGHT_HVAC 0x243
     #define FEATURE_CLIMATE_TARGET_TEMPERATURE          // VCRIGHT_hvacDuctTargetLeft, VCRIGHT_hvacDuctTargetRight
     #define FEATURE_CLIMATE_CURRENT_TEMPERATURE         // VCRIGHT_hvacCabinTempEst
 #endif // CAN_VEHICLE_AVAILABLE
@@ -97,9 +101,11 @@ enum enAnimation
 // Powertrain Features
 #ifdef CAN_VEHICLE_AVAILABLE
     // Vehicle CAN, ID186, DIF_torque
+    #define CAN_VEHICLE_ID_DIF_TORQUE 0x186
     #define FEATURE_POWERTRAIN_TORQUE                   // DIF_torqueActual
 
     // Vehicle CAN, ID118, DriveSystemStatus
+    #define CAN_VEHICLE_ID_DRIVE_SYSTEM_STATUS 0x118
     #define FEATURE_POWERTRAIN_ACCELERATION_PEDAL       // DI_accelPedalPos
 #endif // CAN_VEHICLE_AVAILABLE    
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
