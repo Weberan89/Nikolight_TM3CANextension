@@ -17,6 +17,8 @@
     - Chassis CAN
 */
 
+//#define DEBUGGING
+
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Define which CANs are available (comment out not available CANs)
 #define CAN_VEHICLE_AVAILABLE
