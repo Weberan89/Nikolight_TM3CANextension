@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+esp32_project/.vscode/
+
+documentation/readme.txt

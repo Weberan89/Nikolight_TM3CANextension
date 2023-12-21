@@ -220,7 +220,8 @@ enAnimation LightState::checkStatus( enAnimation * curAnimation, enAnimation ani
           && ( *curAnimation == enAnimation::ANIMATION_NONE )
 #endif // NO_ANIMATION_INTERRUPTION
           )
-        {            *curAnimation = animation2Check;
+        {            
+            *curAnimation = animation2Check;
         }
         else
         {

@@ -30,6 +30,7 @@ enum enAnimation
 {
     // lowest priority
     ANIMATION_NONE,
+    ANIMATION_POWERTRAIN,
     ANIMATION_CLIMATE_CURRENT_HOT,
     ANIMATION_CLIMATE_CURRENT_COLD,
     ANIMATION_CLIMATE_TARGET_HOT,
@@ -125,3 +126,6 @@ enum enAnimation
 #define C_ANIMATION_TIME_LIGHT_FOG_REAR         3000    // 3sec
 #define C_ANIMATION_TIME_LIGHT_BRAKING          3000    // 3sec
 #define C_ANIMATION_TIME_LIGHT_REVERSE          3000    // 3sec
+
+#define C_ANIMATION_POWERTRAIN_TORQUE           3000    // 3sec
+#define C_ANIMATION_POWERTRAIN_ACCELERATION     3000    // 3sec
