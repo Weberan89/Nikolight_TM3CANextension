@@ -1,11 +1,14 @@
 /*
-    @file climate.hpp
+    @file climate.cpp
     @author Andreas Weber
     @brief Implementation of climate class
 */
 
 #include "climate.hpp"
 
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  Target temperature
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #ifdef FEATURE_CLIMATE_TARGET_TEMPERATURE
 
 /// @brief This function is used to update the local target temperature in case the CAN message was received
@@ -45,7 +48,9 @@ void ClimateState::updateTargetTemperature( int new_temp )
 
 #endif // FEATURE_CLIMATE_TARGET_TEMPERATURE
             
-
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  Current Temperature
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #ifdef FEATURE_CLIMATE_CURRENT_TEMPERATURE
 
 /// @brief This function is used to update the estimated current temperature in case the CAN message was received
@@ -85,49 +90,37 @@ void ClimateState::updateCurrentTemperature( int new_temp )
 
 #endif // FEATURE_CLIMATE_CURRENT_TEMPERATURE
 
-
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  Climate States - run method
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 /// @brief This function is the run method to calculate the cyclic update of the feature climate
 /// @param void
-void ClimateState::run(void)
+enAnimation ClimateState::run(enAnimation currentActiveAnimation)
 {
-    // If feature is not initialized or inactive do nothing
-    if (!init_state || !feature_active)
-        return;
+    enAnimation locAnimation = enAnimation::ANIMATION_NONE;
 
-    run_time++;
+    // If feature is not initialized or inactive do nothing
+    if ( !init_state ||  !feature_active )
+    {
+        // Climate feature is not active or initialized yet, return current active animation
+        return currentActiveAnimation;
+    }
+    run_time+=CYCLE_TIME_FEATURE;
 
 #ifdef FEATURE_CLIMATE_TARGET_TEMPERATURE
-    targetTemperatureChange_ms++;
-
-    // If animation is 
-    if ( (   targetTemperatureIncrease_b
-         && (targetTemperatureChange_ms > C_ANIMATION_TIME_CLIMATE_TARGET_HOT)
-         ) 
-     ||  (   targetTemperatureDecrease_b
-         && (targetTemperatureChange_ms > C_ANIMATION_TIME_CLIMATE_TARGET_COLD)
-         )
-    )
-    {
-        targetTemperatureIncrease_b = false;
-        targetTemperatureDecrease_b = false; 
-    }
+    locAnimation = checkStatus(&locAnimation, enAnimation::ANIMATION_CLIMATE_TARGET_HOT, &targetTemperatureIncrease_b, &targetTemperatureChange_ms, C_ANIMATION_TIME_CLIMATE_TARGET_HOT);
+    locAnimation = checkStatus(&locAnimation, enAnimation::ANIMATION_CLIMATE_TARGET_COLD, &targetTemperatureDecrease_b, &targetTemperatureChange_ms, C_ANIMATION_TIME_CLIMATE_TARGET_COLD);
 #endif
 
 #ifdef FEATURE_CLIMATE_CURRENT_TEMPERATURE
-    currentTemperatureChange_ms++;
-
-    // If animation is 
-    if ( (   currentTemperatureIncrease_b
-         && (currentTemperatureChange_ms > C_ANIMATION_TIME_CLIMATE_CURRENT_HOT)
-         ) 
-     ||  (   currentTemperatureDecrease_b
-         && (currentTemperatureChange_ms > C_ANIMATION_TIME_CLIMATE_CURRENT_COLD)
-         )
-    )
-    {
-        currentTemperatureIncrease_b = false;
-        currentTemperatureDecrease_b = false; 
-    }
+    locAnimation = checkStatus(&locAnimation, enAnimation::ANIMATION_CLIMATE_CURRENT_HOT, &currentTemperatureIncrease_b, &currentTemperatureChange_ms, C_ANIMATION_TIME_CLIMATE_CURRENT_HOT);
+    locAnimation = checkStatus(&locAnimation, enAnimation::ANIMATION_CLIMATE_CURRENT_COLD, &currentTemperatureDecrease_b, &currentTemperatureChange_ms, C_ANIMATION_TIME_CLIMATE_CURRENT_COLD);
 #endif
-    return;
+
+    // If new animation is of higher priority then current active animation then return new climate animation
+    if (locAnimation >= currentActiveAnimation)
+        return locAnimation;
+
+    // Otherwise return received animation
+    return currentActiveAnimation;
 };

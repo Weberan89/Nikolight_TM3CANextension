@@ -31,8 +31,9 @@ class ClimateState : public BaseFeature
         bool currentTemperatureIncrease_b;
         bool currentTemperatureDecrease_b;
 #endif
+        ui64 run_time;
 
-    public:
+public:
 
 #ifdef FEATURE_CLIMATE_TARGET_TEMPERATURE
         void updateTargetTemperature(int new_temp);
@@ -46,7 +47,7 @@ class ClimateState : public BaseFeature
         ui8 getTargetTemperaturePerc() { return static_cast<ui8>( (targetTemperature_now - C_TEMPERATURE_MIN) / C_TEMPERATURE_RANGE ); };
 #endif // FEATURE_CLIMATE_CURRENT_TEMPERATURE
 
-        void run();
+        enAnimation run(enAnimation currentActiveAnimation);
 
         ClimateState() :
 #ifdef FEATURE_CLIMATE_TARGET_TEMPERATURE
@@ -61,12 +62,15 @@ class ClimateState : public BaseFeature
             currentTemperature_now(INT16_MAX),
             currentTemperatureChange_ms(UINT16_MAX),
             currentTemperatureIncrease_b(false),
-            currentTemperatureDecrease_b(false)
+            currentTemperatureDecrease_b(false),
 #endif // FEATURE_CLIMATE_CURRENT_TEMPERATURE
+            run_time(0u)
             {
 #if defined(FEATURE_CLIMATE_TARGET_TEMPERATURE) || defined(FEATURE_CLIMATE_CURRENT_TEMPERATURE)
                 feature_active = true;
-                init_state = true;
+#else
+                feature_active = false;
 #endif 
+                init_state = true;
             };
 };
